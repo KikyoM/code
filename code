@@ -1,0 +1,55 @@
+#导包
+from appium import webdriver
+from appium.webdriver.common.touch_action import TouchAction
+from time import sleep
+from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+import unittest
+class test(unittest.TestCase):
+    def setUp(self):
+        #定义App端启动参数
+        desired_caps = dict()
+        desired_caps['platformName'] = 'Android' 
+        desired_caps['platformVersion'] = '9' 
+        desired_caps['deviceName'] = '687c1e341466' 
+        desired_caps['appPackage'] = 'com.android.fileexplorer' 
+        desired_caps['appActivity'] = 'com.android.fileexplorer.FileExplorerTabActivity' 
+        desired_caps['noReset'] = 'True'
+        self.driverA = webdriver.Remote('http://localhost:4723/wd/hub',desired_caps)
+        self.driverA.implicitly_wait(5)
+    def first_test(self):
+        #执行步骤_App端上传文件
+        self.driverA.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout[2]/android.widget.LinearLayout/android.widget.FrameLayout[2]/android.widget.HorizontalScrollView/android.widget.LinearLayout/android.widget.LinearLayout[1]/android.widget.TextView').click()
+        self.driverA.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout[2]/android.widget.LinearLayout/miui.view.ViewPager/android.widget.RelativeLayout/android.widget.ListView/android.widget.FrameLayout[5]').click()
+        element = self.driverA.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout[2]/android.widget.LinearLayout/miui.view.ViewPager/android.widget.RelativeLayout/android.widget.ListView/android.widget.FrameLayout[4]/android.widget.LinearLayout/android.widget.LinearLayout/android.widget.LinearLayout')
+        TouchAction(self.driverA).long_press(element,duration=2000).perform()
+        self.driverA.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.FrameLayout/android.widget.FrameLayout[3]/android.widget.LinearLayout/android.widget.Button[1]').click()
+        self.driverA.find_element_by_xpath('/hierarchy/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout/android.widget.LinearLayout/android.widget.FrameLayout[2]/android.widget.FrameLayout/android.widget.LinearLayout/android.view.ViewGroup/android.widget.GridView/android.widget.LinearLayout[1]/android.widget.FrameLayout/android.widget.ImageView').click()
+        sleep(2)
+        self.driverA.find_element_by_id('com.qihoo.cloudisk:id/upload_button').click()
+        #执行步骤_Web端查询文件是否存在
+        def switch(select):
+            for handels in self.driverW.window_handles:
+                self.driverW.switch_to_window(handels)
+                if select in self.driverW.title:
+                    break
+        self.driverW = webdriver.Edge('msedgedriver.exe')
+        self.driverW.implicitly_wait(5)
+        self.driverW.get('https://yunpan.360.cn/')
+        self.driverW.maximize_window()
+        self.driverW.find_element_by_css_selector('[name="account"]').send_keys('account')
+        self.driverW.find_element_by_css_selector('[name="password"]').send_keys('password')
+        self.driverW.find_element_by_css_selector('[name="phrase"]').send_keys('phrase')
+        self.driverW.find_element_by_css_selector('[value="登录"]').click()
+        switch('360安全云盘 -  新文件管理')
+        if '爱的故事上集' in self.driverW.page_source:
+            print('文件上传成功')
+        else:
+            print('文件上传失败')
+            self.driverW.get_screenshot_as_file('D:\\文件上传失败.png')
+        self.driverW.quit()
+    def tearDown(self):
+        self.driverA.quit()
+if __name__ == "__main__":
+    unittest.main()
